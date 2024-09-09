@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  devenv:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    command: sleep infinity
+    volumes:
+      - ..:/devenv:cached
+    environment:
+      TZ: ${TZ} # Timezone
+      GITHUB_TOKEN: ${GITHUB_TOKEN} # GitHub CLI
+      API_URL: 'https://api-dev.laege.chat'
