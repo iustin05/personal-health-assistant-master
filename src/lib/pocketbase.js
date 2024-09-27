@@ -1,5 +1,6 @@
 // src/lib/pocketbase.js
 import PocketBase from 'pocketbase';
+import { writable } from 'svelte/store';
 
 export const pb = new PocketBase('https://api.laege.chat/');
 
@@ -32,9 +33,9 @@ export const chatHelpers = {
         try {
             const userId = pb.authStore.model.id;
             return await pb.collection('chat_sessions').getList(1, 50, {
-                filter: `field.id = "${userId}"`,
+                filter: `user.id = "${userId}"`,
                 sort: '-created',
-                expand: 'field'
+                expand: 'user'
             });
         } catch (error) {
             console.error('Error fetching chat sessions:', error);
@@ -46,7 +47,7 @@ export const chatHelpers = {
         try {
             const data = {
                 title,
-                field: pb.authStore.model.id,
+                user: pb.authStore.model.id,
             };
             return await pb.collection('chat_sessions').create(data);
         } catch (error) {
@@ -58,7 +59,7 @@ export const chatHelpers = {
     async getChatMessages(sessionId) {
         try {
             return await pb.collection('chat_message').getList(1, 100, {
-                filter: `field = "${sessionId}"`,
+                filter: `chat_session = "${sessionId}"`,
                 sort: 'created',
             });
         } catch (error) {
@@ -70,8 +71,8 @@ export const chatHelpers = {
     async sendMessage(sessionId, content, isUser = true) {
         try {
             const data = {
-                field: sessionId,
-                content,
+                chat_session: sessionId,
+                text : content,
                 user: isUser,
             };
             return await pb.collection('chat_message').create(data);
@@ -83,7 +84,7 @@ export const chatHelpers = {
 
     subscribeToMessages(sessionId, callback) {
         return pb.collection('chat_message').subscribe('*', ({ action, record }) => {
-            if (record.field === sessionId) {
+            if (record.chat_session === sessionId) {
                 callback(action, record);
             }
         });
