@@ -1,0 +1,36 @@
+{
+    "nav": {
+      "title": "Health Assistant",
+      "profile": "Profile",
+      "logout": "Log out",
+      "signin": "Sign In with MitID"
+    },
+    "chat": {
+      "title": "Chats",
+      "newChat": "New Chat",
+      "inputPlaceholder": "Type a message...",
+      "sendButton": "Send"
+    },
+    "profile": {
+      "title": "Profile Settings",
+      "saveButton": "Save Changes",
+      "saving": "Saving...",
+      "successMessage": "Your profile has been updated successfully!",
+      "errorMessage": "Failed to save profile changes",
+      "avatarUpload": "Change Profile Picture",
+      "fields": {
+        "medications": {
+          "label": "Medications",
+          "placeholder": "List your current medications..."
+        },
+        "allergies": {
+          "label": "Allergies",
+          "placeholder": "List any allergies..."
+        },
+        "medicalConditions": {
+          "label": "Medical Conditions",
+          "placeholder": "Describe your medical conditions..."
+        }
+      }
+    }
+  }

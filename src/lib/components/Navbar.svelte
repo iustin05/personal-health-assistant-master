@@ -2,13 +2,7 @@
     import { slide } from 'svelte/transition';
     import { sineOut } from 'svelte/easing';
     import { pb, currentUser, authHelpers } from '$lib/pocketbase';
-  
-    // Language options
-    export let languages = [
-      { code: 'en', name: 'English' },
-      { code: 'dk', name: 'Danish' },
-    ];
-    export let currentLanguage = languages[0];
+    import { language, languages, t } from '$lib/translations/translations';
   
     // Mobile menu state
     let isMobileMenuOpen = false;
@@ -32,6 +26,15 @@
         console.error('Logout error:', error);
       }
     }
+
+    function setLanguage(lang) {
+      language.set(lang);
+      if ($currentUser) {
+        pb.collection('users').update($currentUser.id, {
+          preferred_language: lang
+        });
+      }
+    }
 </script>
   
 <nav class="bg-base-200 border-b border-base-300">
@@ -39,7 +42,7 @@
     <div class="flex justify-between h-16">
       <!-- Left side -->
       <div class="flex items-center">
-        <span class="text-xl font-bold">Health Assistant</span>
+        <span class="text-xl font-bold">{$t('nav.title')}</span>
       </div>
 
       <!-- Right side - Nav Items (Desktop) -->
@@ -47,19 +50,19 @@
         <!-- Language Switcher -->
         <div class="dropdown dropdown-end">
           <label tabindex="0" class="btn btn-ghost">
-            {currentLanguage.name}
+            {languages.find(l => l.code === $language)?.name}
             <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
           </label>
           <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
-            {#each languages as language}
+            {#each languages as lang}
               <li>
                 <button 
-                  class="w-full text-left {currentLanguage.code === language.code ? 'bg-base-200' : ''}"
-                  on:click={() => currentLanguage = language}
+                  class="w-full text-left {$language === lang.code ? 'bg-base-200' : ''}"
+                  on:click={() => setLanguage(lang.code)}
                 >
-                  {language.name}
+                  {lang.name}
                 </button>
               </li>
             {/each}
@@ -72,19 +75,19 @@
             <label tabindex="0" class="btn btn-ghost btn-circle avatar">
               <div class="w-8 rounded-full">
                 {#if $currentUser.avatar}
-                  <img src={pb.files.getURL($currentUser, $currentUser.avatar)} alt="user avatar" />
+                  <img src={pb.files.getURL($currentUser, $currentUser.avatar)} alt={$t('nav.avatarAlt')} />
                 {:else}
-                  <!-- <img src="/api/placeholder/32/32" alt="default avatar" /> -->
+                  <img src="/api/placeholder/32/32" alt={$t('nav.defaultAvatarAlt')} />
                 {/if}
               </div>
             </label>
             <ul tabindex="0" class="menu dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52">
-              <li><a href="profile">{$currentUser.name || 'Profile'}</a></li>
-              <li><button on:click={handleLogout}>Log out</button></li>
+              <li><a href="profile">{$t('nav.profile')}</a></li>
+              <li><button on:click={handleLogout}>{$t('nav.logout')}</button></li>
             </ul>
           </div>
         {:else}
-          <button class="btn btn-primary" on:click={handleLogin}>Sign In with MitID</button>
+          <button class="btn btn-primary" on:click={handleLogin}>{$t('nav.signin')}</button>
         {/if}
       </div>
 
@@ -111,20 +114,20 @@
       <div class="px-2 pt-2 pb-3 space-y-1">
         {#if $currentUser}
           <a href="profile" class="block px-3 py-2 rounded-md hover:bg-base-300">
-            {$currentUser.name || 'Profile'}
+            {$t('nav.profile')}
           </a>
           <button 
             class="w-full text-left px-3 py-2 rounded-md hover:bg-base-300"
             on:click={handleLogout}
           >
-            Log out
+            {$t('nav.logout')}
           </button>
         {:else}
           <button 
             class="w-full px-3 py-2 btn btn-primary"
             on:click={handleLogin}
           >
-            Sign In with MitID
+            {$t('nav.signin')}
           </button>
         {/if}
 
@@ -132,10 +135,11 @@
         <div class="px-3 py-2">
           <select 
             class="select select-bordered w-full"
-            bind:value={currentLanguage}
+            value={$language}
+            on:change={(e) => setLanguage(e.target.value)}
           >
-            {#each languages as language}
-              <option value={language}>{language.name}</option>
+            {#each languages as lang}
+              <option value={lang.code}>{lang.name}</option>
             {/each}
           </select>
         </div>

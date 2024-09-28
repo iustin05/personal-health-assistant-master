@@ -1,0 +1,36 @@
+{
+    "nav": {
+      "title": "Sundhedsassistent",
+      "profile": "Profil",
+      "logout": "Log ud",
+      "signin": "Log ind med MitID"
+    },
+    "chat": {
+      "title": "Chats",
+      "newChat": "Ny Chat",
+      "inputPlaceholder": "Skriv en besked...",
+      "sendButton": "Send"
+    },
+    "profile": {
+      "title": "Profilindstillinger",
+      "saveButton": "Gem ændringer",
+      "saving": "Gemmer...",
+      "successMessage": "Din profil er blevet opdateret!",
+      "errorMessage": "Kunne ikke gemme profilændringer",
+      "avatarUpload": "Skift profilbillede",
+      "fields": {
+        "medications": {
+          "label": "Medicin",
+          "placeholder": "Angiv din nuværende medicin..."
+        },
+        "allergies": {
+          "label": "Allergier",
+          "placeholder": "Angiv dine allergier..."
+        },
+        "medicalConditions": {
+          "label": "Helbredstilstand",
+          "placeholder": "Beskriv din helbredstilstand..."
+        }
+      }
+    }
+  }
