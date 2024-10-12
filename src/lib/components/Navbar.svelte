@@ -29,8 +29,8 @@
 
     function setLanguage(lang) {
       language.set(lang);
-      if ($currentUser) {
-        pb.collection('users').update($currentUser.id, {
+      if (pb.authStore.record.id) {
+        pb.collection('users').update(pb.authStore.record.id, {
           preferred_language: lang
         });
       }
@@ -74,7 +74,7 @@
           <div class="dropdown dropdown-end">
             <label tabindex="0" class="btn btn-ghost btn-circle avatar">
               <div class="w-8 rounded-full">
-                {#if $currentUser.avatar}
+                {#if pb.authStore.record}
                   <img src={pb.files.getURL($currentUser, $currentUser.avatar)} alt={$t('nav.avatarAlt')} />
                 {:else}
                   <img src="/api/placeholder/32/32" alt={$t('nav.defaultAvatarAlt')} />

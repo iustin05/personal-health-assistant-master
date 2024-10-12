@@ -4,7 +4,7 @@ import { writable } from 'svelte/store';
 
 export const pb = new PocketBase('https://api.laege.chat/');
 
-export const currentUser = writable(pb.authStore.model);
+export const currentUser = writable(pb.authStore.record);
 
 // Subscribe to authStore changes
 pb.authStore.onChange((auth) => {
@@ -31,7 +31,7 @@ export const authHelpers = {
 export const chatHelpers = {
     async getChatSessions() {
         try {
-            const userId = pb.authStore.model.id;
+            const userId = pb.authStore.record.id;
             return await pb.collection('chat_sessions').getList(1, 50, {
                 filter: `user.id = "${userId}"`,
                 sort: '-created',
@@ -47,7 +47,7 @@ export const chatHelpers = {
         try {
             const data = {
                 title,
-                user: pb.authStore.model.id,
+                user: pb.authStore.record.id,
             };
             return await pb.collection('chat_sessions').create(data);
         } catch (error) {
@@ -95,7 +95,7 @@ export const chatHelpers = {
 export const userHelpers = {
     async updateProfile(data) {
         try {
-            const userId = pb.authStore.model.id;
+            const userId = pb.authStore.record.id;
             return await pb.collection('users').update(userId, data);
         } catch (error) {
             console.error('Error updating profile:', error);
@@ -105,7 +105,7 @@ export const userHelpers = {
 
     async getProfile() {
         try {
-            const userId = pb.authStore.model.id;
+            const userId = pb.authStore.record.id;
             return await pb.collection('users').getOne(userId);
         } catch (error) {
             console.error('Error fetching profile:', error);
