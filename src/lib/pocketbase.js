@@ -88,6 +88,12 @@ export const chatHelpers = {
                 callback(action, record);
             }
         });
+    },
+
+    async subscribeToChatSessions(callback) {
+        return pb.collection('chat_sessions').subscribe('*', ({ action, record }) => {
+            callback(action, record);
+        });
     }
 };
 

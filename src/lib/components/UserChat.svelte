@@ -40,9 +40,23 @@
         chatHelpers.subscribeToMessages(chatId, (action, record) => {
           if (action === 'create') {
             messages = [...messages, record];
+            // remove duplicate keys
+            messages = messages.filter((v,i,a)=>a.findIndex(t=>(t.id === v.id))===i);
           }
         });
-      }
+
+        chatHelpers.subscribeToChatSessions((action, record) => {
+            if (action === 'update') {
+                chats = chats.map(chat => {
+                    if (chat.id === record.id) {
+                    return record;
+                    } else {
+                    return chat;
+                    }
+                });
+            }
+          });
+        }
       isMobileMenuOpen = false;
     }
   
