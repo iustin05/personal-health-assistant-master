@@ -7,11 +7,13 @@ import { sineIn } from 'svelte/easing';
 // Chat states
 let messages = [];
 let newMessage = '';
+let emergency_message = '';
 
 // Reset chat function
 function resetChat() {
   messages = [];
   newMessage = '';
+  emergency_message = '';
 }
 
 async function handleSendMessage() {
@@ -39,17 +41,24 @@ async function handleSendMessage() {
       })
     });
     
-    console.log('Response:', response);
-    
     // Add response to chat
     if (response?.response) {
-      const botMessage = {
-        id: Date.now() + 1,
-        text: response.response,
-        user: false,
-        created: new Date().toISOString()
-      };
-      messages = [...messages, botMessage];
+        let response_message = response.response;
+        const emergencyMatch = response_message.match(/{EMERGENCY:\s*([^}]+)}/);
+        if (emergencyMatch) {
+            // Extract emergency message
+            emergency_message = emergencyMatch[1];
+            // Remove the emergency tag from the message
+            response_message = response_message.replace(/{EMERGENCY:\s*[^}]+}/, '').trim();
+        }
+        const botMessage = {
+            id: Date.now() + 1,
+            text: response_message,
+            user: false,
+            created: new Date().toISOString()
+        };
+      
+        messages = [...messages, botMessage];
     }
   } catch (error) {
     console.error('Error sending message:', error);
@@ -77,6 +86,21 @@ async function handleSendMessage() {
           </p>
         </div>
       </div>
+    <!-- Emergency Message Warning (if exists) -->
+      {#if emergency_message}
+          <div class="bg-error/30 p-4 flex-none" transition:fade>
+            <div class="container mx-auto flex items-start gap-3">
+              <svg xmlns="http://www.w3.org/2000/svg" class="animate-ping h-6 w-6 text-error flex-shrink-0 mt-1" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
+              <div class="flex flex-col gap-1">
+                <h3 class="font-bold text-error">Emergency Notice</h3>
+                <p class="text-error text-sm">{emergency_message}</p>
+              </div>
+            </div>
+          </div>
+        {/if}
+
     <!-- Chat header -->
     <div class="p-4 border-b border-base-300 flex justify-between items-center">
       <h3 class="text-lg font-bold">Chat</h3>

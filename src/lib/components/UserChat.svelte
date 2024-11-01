@@ -1,8 +1,8 @@
 <script>
     import { onMount, onDestroy } from 'svelte';
     import { pb, chatHelpers } from '$lib/pocketbase';
-	import { fade } from 'svelte/transition';
-	import { sineIn } from 'svelte/easing';
+    import { fade } from 'svelte/transition';
+    import { sineIn } from 'svelte/easing';
     
     // Chat states
     let isChatOpen = false;
@@ -97,9 +97,9 @@
     }
   
     $: selectedChat = chats.find(chat => chat.id === selectedChatId);
-  </script>
+</script>
   
-  <div class="flex-1 flex overflow-hidden">
+<div class="flex-1 flex overflow-hidden">
     <!-- Left sidebar with chat list -->
     <div transition:fade={{duration: 100, easing: sineIn}} class="w-full md:w-1/4 bg-base-200 border-r border-base-300 ease-in transition-all duration-300 
                 {isMobileMenuOpen ? 'opacity-0 hidden' : 'opacity-100'} 
@@ -136,7 +136,8 @@
     <!-- Right side chat content -->
     {#if isChatOpen}
       <div class="w-full md:w-3/4 flex flex-col h-full bg-base-100">
-        <div class="bg-warning/20 p-3 text-sm">
+        <!-- Standard AI Warning -->
+        <div class="bg-warning/20 p-3 text-sm flex-none">
             <div class="container mx-auto flex items-center gap-2">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-warning" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
@@ -145,9 +146,25 @@
                 This is an AI assistant. As much as we try to keep everything in check, responses may be inaccurate or fictional.
               </p>
             </div>
+        </div>
+
+        <!-- Emergency Message Warning (if exists) -->
+        {#if selectedChat?.emergency_message}
+          <div class="bg-error/30 p-4 flex-none" transition:fade>
+            <div class="container mx-auto flex items-start gap-3">
+              <svg xmlns="http://www.w3.org/2000/svg" class="animate-ping h-6 w-6 text-error flex-shrink-0 mt-1" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
+              <div class="flex flex-col gap-1">
+                <h3 class="font-bold text-error">Emergency Notice</h3>
+                <p class="text-error text-sm">{selectedChat.emergency_message}</p>
+              </div>
+            </div>
           </div>
+        {/if}
+
         <!-- Chat header -->
-        <div class="p-4 border-b border-base-300 flex justify-between items-center">
+        <div class="p-4 border-b border-base-300 flex justify-between items-center flex-none">
           <button class="btn btn-ghost btn-sm md:hidden mr-2" on:click={goBackToList}>
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -162,7 +179,7 @@
         </div>
   
         <!-- Scrollable messages area -->
-        <div class="flex-1 overflow-y-auto p-4">
+        <div class="flex-1 overflow-y-auto p-4 min-h-0">
           {#each messages as message (message.id)}
             <div class="chat {message.user ? 'chat-end' : 'chat-start'} mb-4">
               <div class="chat-bubble {message.user ? 'chat-bubble-primary' : 'chat-bubble'}">
@@ -174,28 +191,28 @@
         </div>
   
         <!-- Message input area -->
-        <div class="p-4 border-t border-base-300">
+        <div class="p-4 border-t border-base-300 flex-none">
           <div class="input-group flex flex-col gap-2">
             <div class="text-xs text-base-content/70">
                 Remember: This is an AI chat assistant. Use your judgment when considering its responses.
-              </div>
-              <div class="flex flex-row">
+            </div>
+            <div class="flex flex-row">
               <input 
-              type="text" 
-              placeholder="Type a message..." 
-              class="input input-bordered flex-1 mr-2"
-              bind:value={newMessage}
-              on:keydown={(e) => e.key === 'Enter' && handleSendMessage()}
-            >
-            <button 
-              class="btn btn-primary"
-              on:click={handleSendMessage}
-            >
-              Send
-            </button>
+                type="text" 
+                placeholder="Type a message..." 
+                class="input input-bordered flex-1 mr-2"
+                bind:value={newMessage}
+                on:keydown={(e) => e.key === 'Enter' && handleSendMessage()}
+              >
+              <button 
+                class="btn btn-primary"
+                on:click={handleSendMessage}
+              >
+                Send
+              </button>
             </div>
           </div>
         </div>
       </div>
     {/if}
-  </div>
+</div>
