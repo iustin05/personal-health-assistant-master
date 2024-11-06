@@ -1,42 +1,16 @@
 <script>
-    import { slide } from 'svelte/transition';
-    import { sineOut } from 'svelte/easing';
-    import { pb, currentUser, authHelpers } from '$lib/pocketbase';
-    import { language, languages, t } from '$lib/translations/translations';
-  
-    // Mobile menu state
-    let isMobileMenuOpen = false;
-  
-    function toggleMobileMenu() {
-      isMobileMenuOpen = !isMobileMenuOpen;
-    }
-  
-    async function handleLogin() {
-      try {
-        await authHelpers.signInWithMitId();
-      } catch (error) {
-        console.error('Login error:', error);
-      }
-    }
-  
-    async function handleLogout() {
-      try {
-        await authHelpers.logout();
-      } catch (error) {
-        console.error('Logout error:', error);
-      }
-    }
+  import { slide } from 'svelte/transition';
+  import { sineOut } from 'svelte/easing';
+  import { pb, currentUser, authHelpers } from '$lib/pocketbase';
+  import { language, languages, t } from '$lib/translations/translations';
+  import { createNavStore } from '../stores/navStore';
+  import { NavLogic } from '../utils/navLogic';
 
-    function setLanguage(lang) {
-      language.set(lang);
-      if (pb.authStore.record.id) {
-        pb.collection('users').update(pb.authStore.record.id, {
-          preferred_language: lang
-        });
-      }
-    }
+  const stores = createNavStore();
+  const navLogic = new NavLogic(pb, authHelpers, stores, language);
+  const { isMobileMenuOpen } = stores;
 </script>
-  
+
 <nav class="bg-base-200 border-b border-base-300">
   <div class="mx-auto px-4">
     <div class="flex justify-between h-16">
@@ -60,7 +34,7 @@
               <li>
                 <button 
                   class="w-full text-left {$language === lang.code ? 'bg-base-200' : ''}"
-                  on:click={() => setLanguage(lang.code)}
+                  on:click={() => navLogic.setLanguage(lang.code)}
                 >
                   {lang.name}
                 </button>
@@ -83,11 +57,13 @@
             </label>
             <ul tabindex="0" class="menu dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52">
               <li><a href="profile">{$t('nav.profile')}</a></li>
-              <li><button on:click={handleLogout}>{$t('nav.logout')}</button></li>
+              <li><button on:click={() => navLogic.handleLogout()}>{$t('nav.logout')}</button></li>
             </ul>
           </div>
         {:else}
-          <button class="btn btn-primary" on:click={handleLogin}>{$t('nav.signin')}</button>
+          <button class="btn btn-primary" on:click={() => navLogic.handleLogin()}>
+            {$t('nav.signin')}
+          </button>
         {/if}
       </div>
 
@@ -95,7 +71,7 @@
       <div class="md:hidden flex items-center">
         <button 
           class="btn btn-ghost btn-circle"
-          on:click={toggleMobileMenu}
+          on:click={() => navLogic.toggleMobileMenu()}
         >
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
@@ -106,7 +82,7 @@
   </div>
 
   <!-- Mobile menu -->
-  {#if isMobileMenuOpen}
+  {#if $isMobileMenuOpen}
     <div 
       transition:slide={{duration: 200, easing: sineOut}}
       class="md:hidden border-t border-base-300"
@@ -118,14 +94,14 @@
           </a>
           <button 
             class="w-full text-left px-3 py-2 rounded-md hover:bg-base-300"
-            on:click={handleLogout}
+            on:click={() => navLogic.handleLogout()}
           >
             {$t('nav.logout')}
           </button>
         {:else}
           <button 
             class="w-full px-3 py-2 btn btn-primary"
-            on:click={handleLogin}
+            on:click={() => navLogic.handleLogin()}
           >
             {$t('nav.signin')}
           </button>
@@ -136,7 +112,7 @@
           <select 
             class="select select-bordered w-full"
             value={$language}
-            on:change={(e) => setLanguage(e.target.value)}
+            on:change={(e) => navLogic.setLanguage(e.target.value)}
           >
             {#each languages as lang}
               <option value={lang.code}>{lang.name}</option>

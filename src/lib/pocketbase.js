@@ -8,6 +8,7 @@ export const currentUser = writable(pb.authStore.record);
 
 // Subscribe to authStore changes
 pb.authStore.onChange((auth) => {
+    console.log("User Auth Token", pb.authStore.isValid);
     currentUser.set(auth);
 });
 
