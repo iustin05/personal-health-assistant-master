@@ -9,7 +9,8 @@
       "title": "Chats",
       "newChat": "Ny Chat",
       "inputPlaceholder": "Skriv en besked...",
-      "sendButton": "Send"
+      "sendButton": "Send",
+      "aiDisclaimer": "Remember: This is an AI chat assistant. Use your judgment when considering its responses."
     },
     "profile": {
       "title": "Profilindstillinger",

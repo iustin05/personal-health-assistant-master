@@ -9,7 +9,8 @@
       "title": "Chats",
       "newChat": "New Chat",
       "inputPlaceholder": "Type a message...",
-      "sendButton": "Send"
+      "sendButton": "Send",
+      "aiDisclaimer": "Remember: This is an AI chat assistant. Use your judgment when considering its responses."
     },
     "profile": {
       "title": "Profile Settings",
