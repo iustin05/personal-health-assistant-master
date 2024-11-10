@@ -2,7 +2,7 @@
     import { fade } from 'svelte/transition';
     import { sineIn } from 'svelte/easing';
     import { Plus } from 'lucide-svelte';
-  
+    import { t } from '$lib/translations/translations';
     export let chatLogic;
     export let chats = [];
     export let selectedChatId = null;

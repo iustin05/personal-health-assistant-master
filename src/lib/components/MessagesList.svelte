@@ -1,4 +1,5 @@
 <script>
+    import { t } from '$lib/translations/translations';
     export let messages = [];
   </script>
   

@@ -5,7 +5,6 @@
   import { language, languages, t } from '$lib/translations/translations';
   import { createNavStore } from '../stores/navStore';
   import { NavLogic } from '../utils/navLogic';
-
   const stores = createNavStore();
   const navLogic = new NavLogic(pb, authHelpers, stores, language);
   const { isMobileMenuOpen } = stores;

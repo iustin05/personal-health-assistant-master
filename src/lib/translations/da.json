@@ -10,11 +10,14 @@
       "newChat": "Ny Chat",
       "inputPlaceholder": "Skriv en besked...",
       "sendButton": "Send",
-      "aiDisclaimer": "Remember: This is an AI chat assistant. Use your judgment when considering its responses."
+      "aiHeaderDisclaimer": "Dette er en AI-assistent. Selvom vi gør vores bedste for at holde alt i skak, kan svar være unøjagtige eller fiktive.",
+      "aiDisclaimer": "Husk: Dette er en AI-chatassistent. Brug din dømmekraft, når du overvejer dens svar.",
+      "emergencyNotice": "Nødmeddelelse"
     },
     "profile": {
       "title": "Profilindstillinger",
       "saveButton": "Gem ændringer",
+      "name": "Dit navn...",
       "saving": "Gemmer...",
       "successMessage": "Din profil er blevet opdateret!",
       "errorMessage": "Kunne ikke gemme profilændringer",

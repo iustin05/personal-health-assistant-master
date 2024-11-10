@@ -3,7 +3,7 @@
     export let pb;
     export let currentUser;
     export let profile;
-  
+    import { t } from '$lib/translations/translations';
     function handleFileChange(event) {
       const file = event.target.files?.[0];
       if (file) {
@@ -35,14 +35,14 @@
         on:change={handleFileChange}
       />
       <label for="avatar-upload" class="btn btn-outline btn-sm">
-        Change Profile Picture
+        {$t('profile.avatarUpload')}
       </label>
     </div>
   
     <input 
       type="text"
       class="input input-bordered text-center text-xl font-bold"
-      placeholder="Your Name"
+      placeholder="{$t('profile.name')}"
       bind:value={profile.name}
     />
   </div>

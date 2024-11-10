@@ -10,11 +10,14 @@
       "newChat": "New Chat",
       "inputPlaceholder": "Type a message...",
       "sendButton": "Send",
-      "aiDisclaimer": "Remember: This is an AI chat assistant. Use your judgment when considering its responses."
+      "aiHeaderDisclaimer": "This is an AI assistant. As much as we try to keep everything in check, responses may be inaccurate or fictional.",
+      "aiDisclaimer": "Remember: This is an AI chat assistant. Use your judgment when considering its responses.",
+      "emergencyNotice": "Emergency Notice"
     },
     "profile": {
       "title": "Profile Settings",
       "saveButton": "Save Changes",
+      "name": "Your Name...",
       "saving": "Saving...",
       "successMessage": "Your profile has been updated successfully!",
       "errorMessage": "Failed to save profile changes",

@@ -10,7 +10,7 @@
     import ChatHeader from './ChatHeader.svelte';
     import MessagesList from './MessagesList.svelte';
     import ChatInput from './ChatInput.svelte';
-  
+    import { t } from '$lib/translations/translations';
     const stores = createChatStores();
     const chatService = new PocketBaseChatService(pb);
     const chatLogic = new ChatLogic(chatService, stores);

@@ -1,5 +1,7 @@
 <script>
     import { fade } from 'svelte/transition';
+
+    // import { t } from '$lib/translations/translations';
     
     export let type = 'success';
     export let message = '';

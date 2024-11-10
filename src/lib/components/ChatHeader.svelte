@@ -1,6 +1,6 @@
 <script>
     import { ArrowLeft, Plus } from 'lucide-svelte';
-  
+    // import { t } from '$lib/translations/translations';
     export let title;
     export let showBackButton = false;
     export let onBack = () => {};

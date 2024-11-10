@@ -1,5 +1,5 @@
 import { get } from 'svelte/store';
-
+import { t } from '$lib/translations/translations';
 // utils/chatLogic.js
 export class ChatLogic {
   constructor(chatService, stores) {

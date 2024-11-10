@@ -8,6 +8,7 @@
     import ProfileHeader from './ProfileHeader.svelte';
     import ProfileForm from './ProfileForm.svelte';
     import Alert from './Alert.svelte';
+    import { t } from '$lib/translations/translations';
   
     const stores = createProfileStore();
     const profileLogic = new ProfileLogic(pb, userHelpers, stores);
@@ -33,7 +34,7 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
-              <span class="text-xl font-bold">Profile Settings</span>
+              <span class="text-xl font-bold">{$t('profile.title')}</span>
             </div>
           </div>
         </div>
@@ -60,7 +61,7 @@
           {/if}
   
           {#if $saveSuccess}
-            <Alert type="success" message="Your profile has been updated successfully!" />
+            <Alert type="success" message="{$t('profile.successMessage')}" />
           {/if}
         </div>
       </div>
