@@ -58,6 +58,7 @@
         <ChatHeader 
           title={selectedChat?.title || 'Current Chat'}
           showBackButton={true}
+          messageCount={$messages.length}
           onBack={() => chatLogic.closeChat()}
           onReset={() => chatLogic.closeChat()}
         />

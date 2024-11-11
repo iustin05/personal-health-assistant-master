@@ -12,7 +12,13 @@
       "sendButton": "Send",
       "aiHeaderDisclaimer": "This is an AI assistant. As much as we try to keep everything in check, responses may be inaccurate or fictional.",
       "aiDisclaimer": "Remember: This is an AI chat assistant. Use your judgment when considering its responses.",
-      "emergencyNotice": "Emergency Notice"
+      "emergencyNotice": "Emergency Notice",
+      "sidebar": {
+        "title": "Chats",
+        "newChat": "New Chat",
+        "emergency": "Emergency",
+        "searchPlaceholder": "Search chats..."
+      }
     },
     "profile": {
       "title": "Profile Settings",

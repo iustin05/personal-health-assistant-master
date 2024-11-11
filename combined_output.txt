@@ -1,0 +1,663 @@
+#|-> src/lib/components/ChatInput.svelte
+<script>
+  import { t } from '$lib/translations/translations';
+  
+  export let value = '';
+  export let onInput = () => {};
+  export let onSend = () => {};
+  
+  const handleKeydown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      onSend();
+    }
+  };
+</script>
+
+<div class="p-4 border-t border-base-300 flex-none">
+  <div class="input-group flex flex-col gap-2">
+    <div class="text-xs text-base-content/70">
+      {$t('chat.aiDisclaimer')}
+    </div>
+    <div class="flex flex-row">
+      <input
+        type="text"
+        placeholder={$t('chat.inputPlaceholder')}
+        class="input input-bordered flex-1 mr-2"
+        {value}
+        on:input={onInput}
+        on:keydown={handleKeydown}
+      />
+      <button
+        class="btn btn-primary"
+        on:click={onSend}
+      >
+        {$t('chat.sendButton')}
+      </button>
+    </div>
+  </div>
+</div>
+#<-|
+
+#|-> src/lib/components/EmergencyAlert.svelte
+<script>
+    import { fade } from 'svelte/transition';
+    import { AlertCircle } from 'lucide-svelte';
+    import { t } from '$lib/translations/translations';
+    export let message;
+  </script>
+  
+  <div class="bg-error/30 p-4 flex-none" transition:fade>
+    <div class="container mx-auto flex items-start gap-3">
+      <AlertCircle class="animate-ping h-6 w-6 text-error flex-shrink-0 mt-1" />
+      <div class="flex flex-col gap-1">
+        <h3 class="font-bold text-error">{$t('chat.emergencyNotice')}</h3>
+        <p class="text-error text-sm">{message}</p>
+      </div>
+    </div>
+  </div>
+#<-|
+
+#|-> src/lib/components/MessagesList.svelte
+<script>
+    import { t } from '$lib/translations/translations';
+    export let messages = [];
+  </script>
+  
+  <div class="flex-1 overflow-y-auto p-4 min-h-0">
+    {#each messages as message (message.id)}
+      <div class="chat {message.user ? 'chat-end' : 'chat-start'} mb-4">
+        <div class="chat-bubble {message.user ? 'chat-bubble-primary' : 'chat-bubble'}">
+          {message.text}
+        </div>
+        <div class="chat-footer opacity-50 text-xs">
+          {new Date(message.created).toLocaleString()}
+        </div>
+      </div>
+    {/each}
+  </div>
+#<-|
+
+#|-> src/lib/components/UserChat.svelte
+<script>
+    import { onMount, onDestroy } from 'svelte';
+    import { fade } from 'svelte/transition';
+    import { sineIn } from 'svelte/easing';
+    import { createChatStores } from '../stores/chatStore';
+    import { ChatLogic } from '../utils/chatLogic';
+    import { PocketBaseChatService } from '../services/chatService';
+    import { pb } from '$lib/pocketbase';
+    import Warning from './Warning.svelte';
+    import EmergencyAlert from './EmergencyAlert.svelte';
+    import ChatHeader from './ChatHeader.svelte';
+    import MessagesList from './MessagesList.svelte';
+    import ChatInput from './ChatInput.svelte';
+    import ChatSidebar from './ChatSidebar.svelte';
+    import { t } from '$lib/translations/translations';
+    const stores = createChatStores();
+    const chatService = new PocketBaseChatService(pb);
+    const chatLogic = new ChatLogic(chatService, stores);
+  
+    const {
+      messages,
+      newMessage,
+      selectedChatId,
+      chats,
+      isChatOpen,
+      isMobileMenuOpen
+    } = stores;
+  
+    onMount(async () => {
+      const response = await chatService.getChatSessions();
+      chats.set(response.items);
+    });
+  
+    onDestroy(() => {
+      chatService.unsubscribe();
+    });
+  
+    $: selectedChat = $chats.find(chat => chat.id === $selectedChatId);
+  </script>
+  
+  <div class="flex-1 flex overflow-hidden">
+    <ChatSidebar
+      {chatLogic}
+      chats={$chats}
+      selectedChatId={$selectedChatId}
+      isChatOpen={$isChatOpen}
+      isMobileMenuOpen={$isMobileMenuOpen}
+    />
+  
+    {#if $isChatOpen}
+      <div class="w-full md:w-3/4 flex flex-col h-full bg-base-100">
+        <Warning />
+        
+        {#if selectedChat?.emergency_message}
+          <EmergencyAlert message={selectedChat.emergency_message} />
+        {/if}
+  
+        <ChatHeader 
+          title={selectedChat?.title || 'Current Chat'}
+          showBackButton={true}
+          onBack={() => chatLogic.closeChat()}
+          onReset={() => chatLogic.closeChat()}
+        />
+  
+        <MessagesList messages={$messages} />
+  
+        <ChatInput
+          value={$newMessage}
+          onInput={(e) => newMessage.set(e.target.value)}
+          onSend={() => chatLogic.handleUserMessage($newMessage)}
+        />
+      </div>
+    {/if}
+  </div>
+#<-|
+
+#|-> src/lib/components/ChatHeader.svelte
+<script>
+    import { ArrowLeft, Plus } from 'lucide-svelte';
+    // import { t } from '$lib/translations/translations';
+    export let title;
+    export let showBackButton = false;
+    export let onBack = () => {};
+    export let onReset = () => {};
+  </script>
+  
+  <div class="p-4 border-b border-base-300 flex justify-between items-center flex-none">
+    <div class="flex items-center gap-2">
+      {#if showBackButton}
+        <button class="btn btn-ghost btn-sm md:hidden" on:click={onBack}>
+          <ArrowLeft class="w-6 h-6" />
+        </button>
+      {/if}
+      <h3 class="text-lg font-bold">{title}</h3>
+    </div>
+    
+    <button class="btn btn-ghost btn-circle" on:click={onReset}>
+      <Plus class="w-6 h-6" />
+    </button>
+  </div>
+#<-|
+
+#|-> src/lib/components/GuestChat.svelte
+<script>
+    import { onMount } from 'svelte';
+    import { fade } from 'svelte/transition';
+    import { createChatStores } from '../stores/chatStore';
+    import { ChatLogic } from '../utils/chatLogic';
+    import { PocketBaseChatService } from '../services/chatService';
+    import { pb } from '$lib/pocketbase';
+    import Warning from './Warning.svelte';
+    import EmergencyAlert from './EmergencyAlert.svelte';
+    import ChatHeader from './ChatHeader.svelte';
+    import MessagesList from './MessagesList.svelte';
+    import ChatInput from './ChatInput.svelte';
+    import { t } from '$lib/translations/translations';
+    const stores = createChatStores();
+    const chatService = new PocketBaseChatService(pb);
+    const chatLogic = new ChatLogic(chatService, stores);
+  
+    const { messages, newMessage, emergencyMessage } = stores;
+  </script>
+  
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <div class="w-full flex flex-col h-full bg-base-100">
+      <Warning />
+      
+      {#if $emergencyMessage}
+        <EmergencyAlert message={$emergencyMessage} />
+      {/if}
+  
+      <ChatHeader 
+        title="Chat"
+        onBack={() => chatLogic.resetChat()} 
+        onReset={() => chatLogic.resetChat()} 
+      />
+  
+      <MessagesList messages={$messages} />
+  
+      <ChatInput
+        value={$newMessage}
+        onInput={(e) => newMessage.set(e.target.value)}
+        onSend={() => chatLogic.handleGuestMessage($newMessage)}
+      />
+    </div>
+  </div>
+#<-|
+
+#|-> src/lib/components/ProfileHeader.svelte
+<script>
+    export let profileLogic;
+    export let pb;
+    export let currentUser;
+    export let profile;
+    import { t } from '$lib/translations/translations';
+    function handleFileChange(event) {
+      const file = event.target.files?.[0];
+      if (file) {
+        profileLogic.handleAvatarChange(file);
+      }
+    }
+  </script>
+  
+  <div class="mb-8 text-center">
+    <div class="avatar mb-4">
+      <div class="w-32 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+        {#if profile.avatar}
+          <img 
+            src={pb.files.getURL(currentUser, profile.avatar)} 
+            alt="Profile" 
+          />
+        {:else}
+          <img src="/api/placeholder/128/128" alt="Default Profile" />
+        {/if}
+      </div>
+    </div>
+    
+    <div class="mb-4">
+      <input
+        type="file"
+        class="hidden"
+        id="avatar-upload"
+        accept="image/*"
+        on:change={handleFileChange}
+      />
+      <label for="avatar-upload" class="btn btn-outline btn-sm">
+        {$t('profile.avatarUpload')}
+      </label>
+    </div>
+  
+    <input 
+      type="text"
+      class="input input-bordered text-center text-xl font-bold"
+      placeholder="{$t('profile.name')}"
+      bind:value={profile.name}
+    />
+  </div>
+#<-|
+
+#|-> src/lib/components/Profile.svelte
+<script>
+    import { onMount } from 'svelte';
+    import { fade } from 'svelte/transition';
+    import { sineOut } from 'svelte/easing';
+    import { pb, currentUser, userHelpers } from '$lib/pocketbase';
+    import { createProfileStore } from '../stores/profileStore';
+    import { ProfileLogic } from '../utils/profileLogic';
+    import ProfileHeader from './ProfileHeader.svelte';
+    import ProfileForm from './ProfileForm.svelte';
+    import Alert from './Alert.svelte';
+    import { t } from '$lib/translations/translations';
+  
+    const stores = createProfileStore();
+    const profileLogic = new ProfileLogic(pb, userHelpers, stores);
+    const { loading, profile, isSaving, saveSuccess, errorMessage } = stores;
+  
+    onMount(() => {
+      profileLogic.initializeProfile($currentUser);
+    });
+  </script>
+  
+  {#if !$loading}
+    <div transition:fade={{duration: 300, easing: sineOut}} class="h-dvh w-dvw flex flex-col">
+      <!-- Navigation Bar -->
+      <nav class="bg-base-200 border-b border-base-300">
+        <div class="mx-auto px-4">
+          <div class="flex justify-between h-16">
+            <div class="flex items-center space-x-4">
+              <button 
+                class="btn btn-ghost btn-circle"
+                on:click={() => profileLogic.navigateBack()}
+              >
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <span class="text-xl font-bold">{$t('profile.title')}</span>
+            </div>
+          </div>
+        </div>
+      </nav>
+  
+      <!-- Main Content -->
+      <div class="flex-1 overflow-y-auto bg-base-100 p-4">
+        <div class="max-w-2xl mx-auto">
+          <ProfileHeader
+            {profileLogic}
+            {pb}
+            currentUser={$currentUser}
+            profile={$profile}
+          />
+  
+          <ProfileForm
+            {profileLogic}
+            profile={$profile}
+            isSaving={$isSaving}
+          />
+  
+          {#if $errorMessage}
+            <Alert type="error" message={$errorMessage} />
+          {/if}
+  
+          {#if $saveSuccess}
+            <Alert type="success" message="{$t('profile.successMessage')}" />
+          {/if}
+        </div>
+      </div>
+    </div>
+  {/if}
+#<-|
+
+#|-> src/lib/components/ProfileForm.svelte
+<script>
+    import { t } from '$lib/translations/translations';
+    
+    export let profileLogic;
+    export let profile;
+    export let isSaving;
+  </script>
+  
+  <div class="space-y-6">
+    <div class="form-control">
+      <label class="label">
+        <span class="label-text font-medium">{$t('profile.fields.medications.label')}</span>
+      </label>
+      <textarea
+        bind:value={profile.medications}
+        class="textarea textarea-bordered h-24"
+        placeholder={$t('profile.fields.medications.placeholder')}
+      ></textarea>
+    </div>
+  
+    <div class="form-control">
+      <label class="label">
+        <span class="label-text font-medium">{$t('profile.fields.allergies.label')}</span>
+      </label>
+      <textarea
+        bind:value={profile.allergies}
+        class="textarea textarea-bordered h-24"
+        placeholder={$t('profile.fields.allergies.placeholder')}
+      ></textarea>
+    </div>
+  
+    <div class="form-control">
+      <label class="label">
+        <span class="label-text font-medium">{$t('profile.fields.medicalConditions.label')}</span>
+      </label>
+      <textarea
+        bind:value={profile.medical_conditions}
+        class="textarea textarea-bordered h-32"
+        placeholder={$t('profile.fields.medicalConditions.placeholder')}
+      ></textarea>
+    </div>
+  
+    <div class="flex justify-end space-x-4">
+      <button
+        class="btn btn-primary {isSaving ? 'loading' : ''}"
+        on:click={() => profileLogic.handleSave()}
+        disabled={isSaving}
+      >
+        {isSaving ? $t('profile.saving') : $t('profile.saveButton')}
+      </button>
+    </div>
+  </div>
+#<-|
+
+#|-> src/lib/components/Navbar.svelte
+<script>
+  import { slide } from 'svelte/transition';
+  import { sineOut } from 'svelte/easing';
+  import { pb, currentUser, authHelpers } from '$lib/pocketbase';
+  import { language, languages, t } from '$lib/translations/translations';
+  import { createNavStore } from '../stores/navStore';
+  import { NavLogic } from '../utils/navLogic';
+  const stores = createNavStore();
+  const navLogic = new NavLogic(pb, authHelpers, stores, language);
+  const { isMobileMenuOpen } = stores;
+</script>
+
+<nav class="bg-base-200 border-b border-base-300">
+  <div class="mx-auto px-4">
+    <div class="flex justify-between h-16">
+      <!-- Left side -->
+      <div class="flex items-center">
+        <span class="text-xl font-bold">{$t('nav.title')}</span>
+      </div>
+
+      <!-- Right side - Nav Items (Desktop) -->
+      <div class="hidden md:flex items-center space-x-4">
+        <!-- Language Switcher -->
+        <div class="dropdown dropdown-end">
+          <label tabindex="0" class="btn btn-ghost">
+            {languages.find(l => l.code === $language)?.name}
+            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </label>
+          <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+            {#each languages as lang}
+              <li>
+                <button 
+                  class="w-full text-left {$language === lang.code ? 'bg-base-200' : ''}"
+                  on:click={() => navLogic.setLanguage(lang.code)}
+                >
+                  {lang.name}
+                </button>
+              </li>
+            {/each}
+          </ul>
+        </div>
+
+        <!-- User Menu -->
+        {#if $currentUser}
+          <div class="dropdown dropdown-end">
+            <label tabindex="0" class="btn btn-ghost btn-circle avatar">
+              <div class="w-8 rounded-full">
+                {#if pb.authStore.record}
+                  <img src={pb.files.getURL($currentUser, $currentUser.avatar)} alt={$t('nav.avatarAlt')} />
+                {:else}
+                  <img src="/api/placeholder/32/32" alt={$t('nav.defaultAvatarAlt')} />
+                {/if}
+              </div>
+            </label>
+            <ul tabindex="0" class="menu dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52">
+              <li><a href="profile">{$t('nav.profile')}</a></li>
+              <li><button on:click={() => navLogic.handleLogout()}>{$t('nav.logout')}</button></li>
+            </ul>
+          </div>
+        {:else}
+          <button class="btn btn-primary" on:click={() => navLogic.handleLogin()}>
+            {$t('nav.signin')}
+          </button>
+        {/if}
+      </div>
+
+      <!-- Mobile menu button -->
+      <div class="md:hidden flex items-center">
+        <button 
+          class="btn btn-ghost btn-circle"
+          on:click={() => navLogic.toggleMobileMenu()}
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile menu -->
+  {#if $isMobileMenuOpen}
+    <div 
+      transition:slide={{duration: 200, easing: sineOut}}
+      class="md:hidden border-t border-base-300"
+    >
+      <div class="px-2 pt-2 pb-3 space-y-1">
+        {#if $currentUser}
+          <a href="profile" class="block px-3 py-2 rounded-md hover:bg-base-300">
+            {$t('nav.profile')}
+          </a>
+          <button 
+            class="w-full text-left px-3 py-2 rounded-md hover:bg-base-300"
+            on:click={() => navLogic.handleLogout()}
+          >
+            {$t('nav.logout')}
+          </button>
+        {:else}
+          <button 
+            class="w-full px-3 py-2 btn btn-primary"
+            on:click={() => navLogic.handleLogin()}
+          >
+            {$t('nav.signin')}
+          </button>
+        {/if}
+
+        <!-- Mobile Language Switcher -->
+        <div class="px-3 py-2">
+          <select 
+            class="select select-bordered w-full"
+            value={$language}
+            on:change={(e) => navLogic.setLanguage(e.target.value)}
+          >
+            {#each languages as lang}
+              <option value={lang.code}>{lang.name}</option>
+            {/each}
+          </select>
+        </div>
+      </div>
+    </div>
+  {/if}
+</nav>
+#<-|
+
+#|-> src/lib/components/ChatSidebar.svelte
+<script>
+    import { fade } from 'svelte/transition';
+    import { sineIn } from 'svelte/easing';
+    import { Plus } from 'lucide-svelte';
+    import { t } from '$lib/translations/translations';
+    export let chatLogic;
+    export let chats = [];
+    export let selectedChatId = null;
+    export let isChatOpen = false;
+    export let isMobileMenuOpen = false;
+  </script>
+  
+  <div
+    transition:fade={{duration: 100, easing: sineIn}}
+    class="w-full md:w-1/4 bg-base-200 border-r border-base-300 ease-in transition-all duration-300 
+    {isMobileMenuOpen ? 'opacity-0 hidden' : 'opacity-100'} 
+    {isChatOpen ? 'hidden md:block' : 'block'}"
+  >
+    <div class="h-full flex flex-col">
+      <div class="p-4 border-b border-base-300 flex justify-between items-center">
+        <h2 class="text-xl font-bold">Chats</h2>
+        <button 
+          class="btn btn-ghost btn-circle"
+          on:click={() => chatLogic.createNewChat()}
+        >
+          <Plus class="w-6 h-6" />
+        </button>
+      </div>
+      
+      <div class="flex-1 overflow-y-auto">
+        {#each chats as chat (chat.id)}
+          <div 
+            class="p-4 hover:bg-base-300 cursor-pointer border-b border-base-300 {selectedChatId === chat.id ? 'bg-base-300' : ''}"
+            on:click={() => chatLogic.selectChat(chat.id)}
+          >
+            <div class="font-semibold">{chat.title}</div>
+            <div class="text-xs text-base-content/50">
+              {new Date(chat.created).toLocaleString()}
+            </div>
+          </div>
+        {/each}
+      </div>
+    </div>
+  </div>
+#<-|
+
+#|-> src/lib/components/Alert.svelte
+<script>
+    import { fade } from 'svelte/transition';
+
+    // import { t } from '$lib/translations/translations';
+    
+    export let type = 'success';
+    export let message = '';
+  
+    const icons = {
+      success: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z",
+      error: "M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+    };
+  </script>
+  
+  <div class="alert alert-{type} shadow-lg" transition:fade>
+    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={icons[type]} />
+    </svg>
+    <span>{message}</span>
+  </div>
+#<-|
+
+#|-> src/lib/components/Warning.svelte
+<script>
+    import { ArrowBigDownDashIcon } from 'lucide-svelte';
+    import { t } from '$lib/translations/translations';
+  </script>
+  
+  <div class="bg-warning/20 p-3 text-sm">
+    <div class="container mx-auto flex items-center gap-2">
+      <ArrowBigDownDashIcon class="h-5 w-5 text-warning" />
+      <p>{$t('chat.aiHeaderDisclaimer')}</p>
+    </div>
+  </div>
+#<-|
+
+#|-> src/routes/+page.svelte
+<script>
+    import { onDestroy, onMount } from 'svelte';
+    import UserChat from '$lib/components/UserChat.svelte';
+    import GuestChat from '$lib/components/GuestChat.svelte';
+    import { currentUser } from '$lib/pocketbase';
+
+    let isLoggedIn = false;
+    onMount(() => {
+        currentUser.subscribe((val) => {
+            isLoggedIn = val !== null && val !== "";
+        });
+    });
+
+</script>
+
+{#if isLoggedIn}
+    <UserChat />
+{:else}
+    <GuestChat />
+{/if}
+#<-|
+
+#|-> src/routes/+layout.svelte
+<script>
+	import '../app.css'
+	import { fade } from 'svelte/transition';
+	import { sineOut } from 'svelte/easing';
+	import Navbar from '$lib/components/Navbar.svelte';
+  </script>
+  
+<div transition:fade={{duration: 300, easing: sineOut}} class="h-dvh w-dvw flex flex-col">
+<Navbar />
+<slot />
+</div>
+#<-|
+
+#|-> src/routes/profile/+page.svelte
+<script>
+	import Profile from "$lib/components/Profile.svelte";
+
+</script>
+<Profile />
+#<-|
+

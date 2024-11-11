@@ -28,7 +28,9 @@
   
       <ChatHeader 
         title="Chat"
-        onBack={() => chatLogic.resetChat()} 
+        showBackButton={false}
+        messageCount={$messages.length}
+        onBack={() => chatLogic.createNewChat()} 
         onReset={() => chatLogic.resetChat()} 
       />
   

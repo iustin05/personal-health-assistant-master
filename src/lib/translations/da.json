@@ -12,7 +12,13 @@
       "sendButton": "Send",
       "aiHeaderDisclaimer": "Dette er en AI-assistent. Selvom vi gør vores bedste for at holde alt i skak, kan svar være unøjagtige eller fiktive.",
       "aiDisclaimer": "Husk: Dette er en AI-chatassistent. Brug din dømmekraft, når du overvejer dens svar.",
-      "emergencyNotice": "Nødmeddelelse"
+      "emergencyNotice": "Nødmeddelelse",
+      "sidebar": {
+        "title": "Chats",
+        "newChat": "Ny Chat",
+        "emergency": "Nødmeddelelse",
+        "searchPlaceholder": "Søg i chats..."
+      }
     },
     "profile": {
       "title": "Profilindstillinger",
