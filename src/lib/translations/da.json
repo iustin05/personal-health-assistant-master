@@ -3,7 +3,8 @@
       "title": "Sundhedsassistent",
       "profile": "Profil",
       "logout": "Log ud",
-      "signin": "Log ind med MitID"
+      "signin": "Log ind med MitID",
+      "language": "Sprog"
     },
     "chat": {
       "title": "Chats",
@@ -18,7 +19,8 @@
         "newChat": "Ny Chat",
         "emergency": "Nødmeddelelse",
         "searchPlaceholder": "Søg i chats..."
-      }
+      },
+      "emptyState": "Ingen beskeder endnu, send en besked for at starte!"
     },
     "profile": {
       "title": "Profilindstillinger",

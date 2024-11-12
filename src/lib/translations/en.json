@@ -3,7 +3,8 @@
       "title": "Health Assistant",
       "profile": "Profile",
       "logout": "Log out",
-      "signin": "Sign In with MitID"
+      "signin": "Sign In with MitID",
+      "language": "Language"
     },
     "chat": {
       "title": "Chats",
@@ -18,7 +19,8 @@
         "newChat": "New Chat",
         "emergency": "Emergency",
         "searchPlaceholder": "Search chats..."
-      }
+      },
+      "emptyState": "No messages yet, send a message to start!"
     },
     "profile": {
       "title": "Profile Settings",
