@@ -60,6 +60,16 @@ export class ChatLogic {
     }
   }
 
+  async deleteChat(chatId) {
+    try {
+      await this.chatService.deleteChatSession(chatId);
+      this.stores.chats.update(c => c.filter(chat => chat.id !== chatId));
+      this.closeChat();
+    } catch (error) {
+      console.error('Error deleting chat:', error);
+    }
+  }
+
   async selectChat(chatId) {
     const currentSelectedId = get(this.stores.selectedChatId);
     

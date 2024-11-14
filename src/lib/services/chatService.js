@@ -36,6 +36,11 @@ export class PocketBaseChatService {
         user: this.pb.authStore.record.id
       });
     }
+
+    async deleteChatSession(chatId) {
+      console.log('Deleting chat:', chatId);
+      return this.pb.collection('chat_sessions').delete(chatId);
+    }
   
     subscribeToMessages(chatId, callback) {
       console.log('Subscribing to chat:', chatId);

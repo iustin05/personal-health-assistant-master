@@ -19,8 +19,8 @@
   export let onBack = () => {};
   export let onReset = () => {};
   export let onDelete = () => {};
-  export let onShare = () => {};
-  export let onArchive = () => {};
+  // export let onShare = () => {};
+  // export let onArchive = () => {};
   
   let showMenu = false;
   
@@ -86,7 +86,7 @@
             on:mouseleave={hideMenu}
           >
             <div class="py-1">
-              <button
+            <!--   <button
                 class="flex items-center gap-2 px-4 py-2 text-sm w-full hover:bg-base-300"
                 on:click={() => {
                   onShare();
@@ -95,9 +95,9 @@
               >
                 <Share2 class="w-4 h-4" />
                 Share Chat
-              </button>
+              </button> -->
               
-              <button
+              <!-- <button
                 class="flex items-center gap-2 px-4 py-2 text-sm w-full hover:bg-base-300"
                 on:click={() => {
                   onArchive();
@@ -106,7 +106,7 @@
               >
                 <Archive class="w-4 h-4" />
                 Archive Chat
-              </button>
+              </button> -->
               
               <button
                 class="flex items-center gap-2 px-4 py-2 text-sm w-full text-error hover:bg-base-300"

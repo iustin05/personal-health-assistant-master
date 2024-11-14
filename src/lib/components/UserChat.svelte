@@ -61,6 +61,8 @@
           messageCount={$messages.length}
           onBack={() => chatLogic.closeChat()}
           onReset={() => chatLogic.closeChat()}
+          onDelete={() => chatLogic.deleteChat(selectedChat.id)}
+
         />
   
         <MessagesList messages={$messages} />
