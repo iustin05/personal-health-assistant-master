@@ -1,10 +1,13 @@
+// utils/chatLogic.js
 import { get } from 'svelte/store';
 import { t } from '$lib/translations/translations';
-// utils/chatLogic.js
+import { ExportService } from '../services/exportService';
+
 export class ChatLogic {
   constructor(chatService, stores) {
     this.chatService = chatService;
     this.stores = stores;
+    this.exportService = new ExportService(chatService);
   }
 
   resetChat() {
@@ -90,6 +93,46 @@ export class ChatLogic {
         console.error('Error loading chat messages:', error);
         this._handleError(error);
       }
+    }
+  }
+
+  async exportCurrentChatToCSV() {
+    try {
+      const currentChatId = get(this.stores.selectedChatId);
+      const currentChat = get(this.stores.chats).find(chat => chat.id === currentChatId);
+      if (currentChatId && currentChat) {
+        await this.exportService.exportSingleChatToCSV(currentChatId, currentChat.title);
+      }
+    } catch (error) {
+      console.error('Error exporting current chat to CSV:', error);
+    }
+  }
+
+  async exportCurrentChatToPDF() {
+    try {
+      const currentChatId = get(this.stores.selectedChatId);
+      const currentChat = get(this.stores.chats).find(chat => chat.id === currentChatId);
+      if (currentChatId && currentChat) {
+        await this.exportService.exportSingleChatToPDF(currentChatId, currentChat.title);
+      }
+    } catch (error) {
+      console.error('Error exporting current chat to PDF:', error);
+    }
+  }
+
+  async exportAllChatsToCSV() {
+    try {
+      await this.exportService.exportAllChatsToCSV();
+    } catch (error) {
+      console.error('Error exporting all chats to CSV:', error);
+    }
+  }
+
+  async exportAllChatsToPDF() {
+    try {
+      await this.exportService.exportAllChatsToPDF();
+    } catch (error) {
+      console.error('Error exporting all chats to PDF:', error);
     }
   }
 

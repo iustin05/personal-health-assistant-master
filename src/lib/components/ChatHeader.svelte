@@ -8,7 +8,10 @@
     MoreVertical,
     Trash2,
     Share2,
-    Archive
+    Download,
+    FileDown,
+    Files,
+    FilesIcon
   } from 'lucide-svelte';
   import { t } from '$lib/translations/translations';
   
@@ -19,8 +22,10 @@
   export let onBack = () => {};
   export let onReset = () => {};
   export let onDelete = () => {};
-  // export let onShare = () => {};
-  // export let onArchive = () => {};
+  export let onExportCurrentCSV = () => {};
+  export let onExportCurrentPDF = () => {};
+  export let onExportAllCSV = () => {};
+  export let onExportAllPDF = () => {};
   
   let showMenu = false;
   
@@ -81,32 +86,60 @@
         
         {#if showMenu}
           <div 
-            class="absolute right-0 mt-2 w-48 rounded-lg shadow-lg bg-base-200 ring-1 ring-base-300"
+            class="absolute right-0 mt-2 w-56 rounded-lg shadow-lg bg-base-200 ring-1 ring-base-300"
             transition:slide={{ duration: 200 }}
             on:mouseleave={hideMenu}
           >
             <div class="py-1">
-            <!--   <button
+              <div class="px-3 py-2 text-sm font-medium text-base-content/70">Current Chat</div>
+              <button
                 class="flex items-center gap-2 px-4 py-2 text-sm w-full hover:bg-base-300"
                 on:click={() => {
-                  onShare();
+                  onExportCurrentCSV();
                   hideMenu();
                 }}
               >
-                <Share2 class="w-4 h-4" />
-                Share Chat
-              </button> -->
+                <Download class="w-4 h-4" />
+                Export as CSV
+              </button>
               
-              <!-- <button
+              <button
                 class="flex items-center gap-2 px-4 py-2 text-sm w-full hover:bg-base-300"
                 on:click={() => {
-                  onArchive();
+                  onExportCurrentPDF();
                   hideMenu();
                 }}
               >
-                <Archive class="w-4 h-4" />
-                Archive Chat
-              </button> -->
+                <FileDown class="w-4 h-4" />
+                Export as PDF (BETA)
+              </button>
+
+              <div class="divider my-1"></div>
+              
+              <div class="px-3 py-2 text-sm font-medium text-base-content/70">All Chats</div>
+              <button
+                class="flex items-center gap-2 px-4 py-2 text-sm w-full hover:bg-base-300"
+                on:click={() => {
+                  onExportAllCSV();
+                  hideMenu();
+                }}
+              >
+                <Files class="w-4 h-4" />
+                Export All as CSV
+              </button>
+              
+              <button
+                class="flex items-center gap-2 px-4 py-2 text-sm w-full hover:bg-base-300"
+                on:click={() => {
+                  onExportAllPDF();
+                  hideMenu();
+                }}
+              >
+                <FilesIcon class="w-4 h-4" />
+                Export All as PDF (BETA)
+              </button>
+
+              <div class="divider my-1"></div>
               
               <button
                 class="flex items-center gap-2 px-4 py-2 text-sm w-full text-error hover:bg-base-300"
