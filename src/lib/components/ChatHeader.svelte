@@ -11,10 +11,13 @@
     Download,
     FileDown,
     Files,
-    FilesIcon
+    FilesIcon,
+    LogIn,
+    ArrowUp
   } from 'lucide-svelte';
   import { t } from '$lib/translations/translations';
   
+  export let showSettings = true;
   export let title = '';
   export let messageCount = 0;
   export let created = new Date();
@@ -90,6 +93,7 @@
             transition:slide={{ duration: 200 }}
             on:mouseleave={hideMenu}
           >
+            {#if showSettings}
             <div class="py-1">
               <div class="px-3 py-2 text-sm font-medium text-base-content/70">Current Chat</div>
               <button
@@ -152,6 +156,12 @@
                 Delete Chat
               </button>
             </div>
+            {:else}
+            <div class="py-1 flex flex-row items-center justify-center">
+              <ArrowUp class="w-4 h-4" />
+              <div class="px-3 py-2 text-sm font-medium text-base-content/70">Sign In to Save</div>
+            </div>
+            {/if}
           </div>
         {/if}
       </div>

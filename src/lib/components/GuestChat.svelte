@@ -32,6 +32,7 @@
         messageCount={$messages.length}
         onBack={() => chatLogic.createNewChat()} 
         onReset={() => chatLogic.resetChat()} 
+        showSettings={false}
       />
   
       <MessagesList messages={$messages} />
